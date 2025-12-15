@@ -1,0 +1,10 @@
+_dev
+.sst
+coverage
+node_modules
+venv
+.venv
+dist
+rs
+build
+.docusaurus

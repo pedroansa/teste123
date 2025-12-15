@@ -1,0 +1,51 @@
+{
+    "name": "saas_arqgen_layouts",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "engines": {
+        "node": ">=18 <23"
+    },
+    "scripts": {
+        "postinstall": "cd packages/ts/web && npm install",
+        "dev": "sst dev -- --increase-timeout",
+        "dev:web": "cd packages/ts/web && npm run dev",
+        "start": "cd packages/ts/web && npm run dev",
+        "build": "sst build",
+        "deploy": "sst deploy",
+        "deploy:vite": "vite deploy",
+        "remove": "sst remove",
+        "console": "sst console",
+        "typecheck": "tsc --noEmit",
+        "format": "prettier --write .",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix"
+    },
+    "devDependencies": {
+        "@arqgen/eslint-configs": "github:arqgen/eslint-configs#v1.2.4",
+        "@aws-sdk/client-ssm": "^3.665.0",
+        "@tsconfig/node18": "^18.2.4",
+        "@types/geojson": "^7946.0.15",
+        "@types/node": "^16.18.126",
+        "aws-cdk-lib": "2.142.1",
+        "constructs": "10.3.0",
+        "eslint-import-resolver-webpack": "^0.13.10",
+        "prettier": "^2.8.8",
+        "sst": "2.43.7",
+        "typescript": "5.5.4"
+    },
+    "workspaces": [
+        "packages/ts/*[!web]*"
+    ],
+    "optionalDependencies": {
+        "rust.aws-cdk-lambda": "^1.2.1"
+    },
+    "dependencies": {
+        "simple-rc4": "^0.0.1-b"
+    },
+    "overrides" : {
+        "sst": {
+            "fast-jwt": "^4.0.5"
+        }
+    }
+}

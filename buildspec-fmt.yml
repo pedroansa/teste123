@@ -1,0 +1,34 @@
+version: 0.2
+env:
+  shell: bash
+  variables:
+    STORAGE_BUCKET: arqgen-blockparty
+    MINICONDA: Miniconda3-py38_23.3.1-0-Linux-x86_64.sh
+    GITHUB_ARQBOT_USER: arqgen-bot
+  secrets-manager:
+    GITHUB_ARQBOT_PAT: "CROSS_ROLE:GITHUB_ARQBOT_PAT"
+phases:
+  install:
+    commands:
+      - aws s3 cp --no-progress s3://arqgen-blockparty/tools/prebuild.sh /root/prebuild.sh
+      - chmod +x /root/prebuild.sh
+      - /root/prebuild.sh
+      - cd $CODEBUILD_SRC_DIR
+
+  build:
+    commands:
+      - export PATH=/root/miniconda3/bin/:$PATH
+      - conda info
+      - conda install poetry pytest -y -q || (rm -rf /root/miniconda3/pkgs/* ;  rm -rf /root/.conda/pkgs/* ; conda install poetry pytest -y -q)
+      - conda create --prefix ./venv python=3.11 -y -q || (rm -rf venv; rm -rf /root/miniconda3/pkgs/* ;  rm -rf /root/.conda/pkgs/* ; conda create --prefix ./venv python=3.11 -y -q)
+      - |
+        eval "$(conda shell.bash hook)"
+        conda activate ./venv
+        cd $CODEBUILD_SRC_DIR/py
+        poetry install --with dev
+        pip install ruff
+        ruff check --exclude \.ipynb --exclude venv  .
+cache:
+  paths:
+    - '/root/.cache/pypoetry/**/*'
+    - '/root/miniconda3/pkgs/**/*'

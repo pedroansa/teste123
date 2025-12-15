@@ -1,0 +1,65 @@
+diff -ru node_modules/sst/constructs/Function.js node_modules_ok/sst/constructs/Function.js
+--- node_modules/sst/constructs/Function.js	2025-07-04 08:41:12.356193987 -0300
++++ node_modules_ok/sst/constructs/Function.js	2025-07-03 14:27:50.737933100 -0300
+@@ -19,7 +19,7 @@
+ import { useRuntimeHandlers } from "../runtime/handlers.js";
+ import { createAppContext } from "./context.js";
+ import { useWarning } from "./util/warning.js";
+-import { Architecture, AssetCode, Code, Function as CDKFunction, FunctionUrlAuthType, Handler as CDKHandler, LayerVersion, Runtime as CDKRuntime, Tracing, InvokeMode, } from "aws-cdk-lib/aws-lambda";
++import { Architecture, AssetCode, Code, Function as CDKFunction, FunctionUrlAuthType, Handler as CDKHandler, LayerVersion, Runtime as CDKRuntime, Tracing, InvokeMode, Runtime, RuntimeFamily, } from "aws-cdk-lib/aws-lambda";
+ import { RetentionDays } from "aws-cdk-lib/aws-logs";
+ import { Token, Size as CDKSize, Duration as CDKDuration, IgnoreMode, CustomResource, } from "aws-cdk-lib/core";
+ import { Effect, Policy, PolicyStatement } from "aws-cdk-lib/aws-iam";
+@@ -36,6 +36,7 @@
+     "nodejs16.x": CDKRuntime.NODEJS_16_X,
+     "nodejs18.x": CDKRuntime.NODEJS_18_X,
+     "nodejs20.x": CDKRuntime.NODEJS_20_X,
++    "nodejs22.x": new Runtime("nodejs22.x",0,{supportsInlineCode:!0}),
+     "python3.7": CDKRuntime.PYTHON_3_7,
+     "python3.8": CDKRuntime.PYTHON_3_8,
+     "python3.9": CDKRuntime.PYTHON_3_9,
+@@ -87,7 +88,7 @@
+             .forEach((per) => {
+             props = Function.mergeProps(per, props);
+         });
+-        props.runtime = props.runtime || "nodejs18.x";
++        props.runtime = props.runtime || "nodejs22.x";
+         if (props.runtime === "go1.x")
+             useWarning().add("go.deprecated");
+         // Set defaults
+diff -ru node_modules/sst/constructs/RDS.js node_modules_ok/sst/constructs/RDS.js
+--- node_modules/sst/constructs/RDS.js	2025-07-04 08:41:12.467195482 -0300
++++ node_modules_ok/sst/constructs/RDS.js	2025-07-03 16:24:06.398631709 -0300
+@@ -343,7 +343,7 @@
+         // Create custom resource handler
+         const handler = new Function(this, "MigrationHandler", {
+             code: Code.fromAsset(path.join(__dirname, "../support/script-function")),
+-            runtime: Runtime.NODEJS_18_X,
++            runtime: "nodejs22.x",
+             handler: "index.handler",
+             timeout: CDKDuration.minutes(15),
+             memorySize: 1024,
+diff -ru node_modules/sst/constructs/Script.js node_modules_ok/sst/constructs/Script.js
+--- node_modules/sst/constructs/Script.js	2025-07-04 08:41:12.474195576 -0300
++++ node_modules_ok/sst/constructs/Script.js	2025-07-03 16:51:13.396354148 -0300
+@@ -121,7 +121,7 @@
+     createCustomResourceFunction() {
+         const handler = new CdkFunction(this, "ScriptHandler", {
+             code: Code.fromAsset(path.join(__dirname, "../support/script-function")),
+-            runtime: Runtime.NODEJS_18_X,
++            runtime: new Runtime("nodejs22.x",0,{supportsInlineCode:!0}),
+             handler: "index.handler",
+             timeout: Duration.minutes(15),
+             memorySize: 1024,
+diff -ru node_modules/sst/constructs/Stack.js node_modules_ok/sst/constructs/Stack.js
+--- node_modules/sst/constructs/Stack.js	2025-07-04 08:41:12.489195778 -0300
++++ node_modules_ok/sst/constructs/Stack.js	2025-07-03 18:17:57.775531686 -0300
+@@ -196,7 +196,7 @@
+                 assetHash: this.stackName + fs.readFileSync(dir + "/index.mjs").toString(),
+             }),
+             handler: "index.handler",
+-            runtime: lambda.Runtime.NODEJS_18_X,
++            runtime: new lambda.Runtime("nodejs22.x",0,{supportsInlineCode:!0}),
+             timeout: CDKDuration.seconds(900),
+             memorySize: 1024,
+         });
